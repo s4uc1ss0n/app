@@ -10,9 +10,7 @@ permissions:
   id-token: write
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,5 +23,11 @@ jobs:
         with:
           path: .
 
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
