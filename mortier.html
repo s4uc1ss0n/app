@@ -63,8 +63,10 @@
             const deltaX = x2 - x1;
             const deltaY = y2 - y1;
             
-            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            // Distance en mètres (1 unité = 100m)
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 100;
             
+            // Azimut en degrés (0° = Nord, 90° = Est)
             const angleRad = Math.atan2(deltaY, deltaX);
             let azimuth = 90 - (angleRad * (180 / Math.PI));
             azimuth = (azimuth + 360) % 360;
