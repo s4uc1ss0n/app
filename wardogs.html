@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardogs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="saucisson-title">Wardogs</h1>
+        
+        <div class="mortier-app">
+            <div class="input-section">
+                <div class="type-selector">
+                    <h3>Type d'arme</h3>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="weaponType" value="mortier" checked>
+                            <span>Mortier</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="weaponType" value="vehicule">
+                            <span>Véhicule</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <h3>Position de l'Arme</h3>
+                    <div class="input-row">
+                        <label for="x1">X</label>
+                        <input type="number" id="x1" step="0.01" placeholder="38.99">
+                    </div>
+                    <div class="input-row">
+                        <label for="y1">Y</label>
+                        <input type="number" id="y1" step="0.01" placeholder="111.22">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <h3>Position de la Cible</h3>
+                    <div class="input-row">
+                        <label for="x2">X</label>
+                        <input type="number" id="x2" step="0.01" placeholder="88.53">
+                    </div>
+                    <div class="input-row">
+                        <label for="y2">Y</label>
+                        <input type="number" id="y2" step="0.01" placeholder="129.97">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section" id="results">
+                <h3>Résultats</h3>
+                <p><strong>Distance:</strong> <span id="distance">—</span> м</p>
+                <p><strong>Azimut:</strong> <span id="azimuth">—</span>°</p>
+                <p id="range-warning"></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const inputs = ['x1', 'y1', 'x2', 'y2'];
+        const rangeConfig = {
+            mortier: { min: 132, max: 684 },
+            vehicule: { min: 780, max: 2629 }
+        };
+        
+        function calculate() {
+            const x1 = parseFloat(document.getElementById('x1').value);
+            const y1 = parseFloat(document.getElementById('y1').value);
+            const x2 = parseFloat(document.getElementById('x2').value);
+            const y2 = parseFloat(document.getElementById('y2').value);
+            const weaponType = document.querySelector('input[name="weaponType"]:checked').value;
+            const config = rangeConfig[weaponType];
+            
+            if (isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2)) {
+                document.getElementById('distance').textContent = '—';
+                document.getElementById('azimuth').textContent = '—';
+                document.getElementById('results').classList.remove('out-of-range');
+                document.getElementById('range-warning').textContent = '';
+                return;
+            }
+            
+            const deltaX = x2 - x1;
+            const deltaY = y2 - y1;
+            
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 100;
+            
+            const angleRad = Math.atan2(deltaY, deltaX);
+            let azimuth = 90 - (angleRad * (180 / Math.PI));
+            azimuth = (azimuth + 360) % 360;
+            
+            document.getElementById('distance').textContent = Math.round(distance);
+            document.getElementById('azimuth').textContent = azimuth.toFixed(1);
+            
+            // Check range
+            if (distance < config.min || distance > config.max) {
+                document.getElementById('results').classList.add('out-of-range');
+                document.getElementById('range-warning').textContent = `Hors portée (${config.min}–${config.max} м)`;
+            } else {
+                document.getElementById('results').classList.remove('out-of-range');
+                document.getElementById('range-warning').textContent = '';
+            }
+        }
+        
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+        
+        document.querySelectorAll('input[name="weaponType"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
+        });
+    </script>
+</body>
+</html>
